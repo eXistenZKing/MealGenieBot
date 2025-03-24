@@ -1,5 +1,5 @@
-from users import User
-from languages import Language
+from .users import User
+from .languages import Language
 
 
 __all__ = (

@@ -1,12 +1,14 @@
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from core.database import Base
+from app.core.database import Base
 
 
 class Language(Base):
     __tablename__ = "languages"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
     code: Mapped[str] = mapped_column(String, unique=True)
     public_name: Mapped[str] = mapped_column(String, unique=True)
