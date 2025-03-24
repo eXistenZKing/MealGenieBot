@@ -1,4 +1,4 @@
 from fastapi import FastAPI
 
 
-app = FastAPI(title="")
+app = FastAPI(title="RecipeBot")

@@ -1,0 +1,31 @@
+from typing import AsyncGenerator
+
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine
+)
+from sqlalchemy.orm import DeclarativeBase
+
+from core.config import settings
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+class DatabaseConnection:
+    def __init__(self, url: str):
+        self.engine = create_async_engine(url=url)
+        self.session_factory = async_sessionmaker(
+            bind=self.engine,
+            autoflush=False,
+            expire_on_commit=False
+        )
+
+    async def async_session(self) -> AsyncGenerator[AsyncSession, None]:
+        async with self.session_factory() as session:
+            yield session
+
+
+database = DatabaseConnection(url=settings.db_url)
