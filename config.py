@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     DB_PASS: str
     DB_NAME: str
 
+    BOT_TOKEN: str
+
     @property
     def db_url(self) -> str:
         return (f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}"
