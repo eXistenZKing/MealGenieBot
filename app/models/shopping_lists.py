@@ -16,3 +16,8 @@ class ShoppingList(Base):
         back_populates="shopping_list",
         cascade="all, delete-orphan"
     )
+
+    user: Mapped["User"] = relationship(
+        back_populates="shopping_list",
+        uselist=False
+    )

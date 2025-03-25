@@ -1,5 +1,5 @@
 from sqlalchemy import ForeignKey, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 
@@ -15,4 +15,10 @@ class User(Base):
     )
     language: Mapped[str] = mapped_column(
         ForeignKey("languages.code"), default="ru"
+    )
+
+    shopping_list: Mapped["ShoppingList"] = relationship(
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan"
     )
