@@ -23,3 +23,11 @@ async def create_new_user(
     except Exception as e:
         await session.rollback()
         print(f"Error occurred while creating user: {e}")
+
+
+async def get_user(session: AsyncSession, telegram_id: int) -> User:
+    query = await session.execute(
+        select(User).filter_by(telegram_id=telegram_id)
+    )
+    user = query.scalar_one_or_none()
+    return user.telegram_id
