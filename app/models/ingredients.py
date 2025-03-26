@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, String
+from sqlalchemy import Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -16,4 +16,9 @@ class Ingredient(Base):
     shopping_lists: Mapped[list["ShoppingList"]] = relationship(
         secondary="amount_ingredients",
         back_populates="ingredients"
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "name", "measurement_unit", name="uq_ingredient_measurement"),
     )

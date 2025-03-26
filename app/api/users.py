@@ -12,6 +12,6 @@ router = APIRouter(prefix="/users")
 async def create_user(
     telegram_id: int,
     session: AsyncSession = Depends(database.async_session)
-):
+) -> bool | None:
     result = await create_new_user(session, telegram_id)
     return result
