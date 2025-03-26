@@ -12,9 +12,9 @@ class ShoppingList(Base):
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
-    amount_ingredients: Mapped[list["AmountIngredient"]] = relationship(
-        back_populates="shopping_list",
-        cascade="all, delete-orphan"
+    ingredients: Mapped[list["Ingredient"]] = relationship(
+        secondary="amount_ingredients",
+        back_populates="shopping_lists",
     )
 
     user: Mapped["User"] = relationship(

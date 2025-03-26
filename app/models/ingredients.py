@@ -13,6 +13,7 @@ class Ingredient(Base):
     name: Mapped[str] = mapped_column(String(128), nullable=False)
     measurement_unit: Mapped[str] = mapped_column(String(20), nullable=False)
 
-    amount_ingredients: Mapped[list["AmountIngredient"]] = relationship(
-        back_populates="ingredient"
+    shopping_lists: Mapped[list["ShoppingList"]] = relationship(
+        secondary="amount_ingredients",
+        back_populates="ingredients"
     )
