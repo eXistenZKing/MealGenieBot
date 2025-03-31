@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import SecretStr
 
 
 class Settings(BaseSettings):
@@ -10,10 +11,10 @@ class Settings(BaseSettings):
     DB_HOST: str
     DB_PORT: int
     DB_USER: str
-    DB_PASS: str
+    DB_PASS: SecretStr
     DB_NAME: str
 
-    BOT_TOKEN: str
+    BOT_TOKEN: SecretStr
 
     @property
     def db_url(self) -> str:

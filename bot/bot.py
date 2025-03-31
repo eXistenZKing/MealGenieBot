@@ -1,10 +1,11 @@
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from aiogram.utils.callback_answer import CallbackAnswerMiddleware
 import asyncio
 
 from config import settings
-from bot.handlers import start_router
+from bot.handlers import recipe_router, start_router
 
 
 bot = Bot(
@@ -12,10 +13,12 @@ bot = Bot(
     default=DefaultBotProperties(parse_mode=ParseMode.HTML)
 )
 dp = Dispatcher()
+dp.callback_query.middleware(CallbackAnswerMiddleware())
 
 
 async def main():
-    dp.include_router(start_router)
+    dp.include_router(recipe_router, start_router)
+    await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
 
