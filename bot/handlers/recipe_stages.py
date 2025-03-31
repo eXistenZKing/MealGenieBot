@@ -1,12 +1,43 @@
 from aiogram import Bot, F, Router, html, types
+from aiogram.filters import StateFilter
+from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+
+from bot.fsm import RecipeGenerate
 
 
 recipe_router = Router()
 
 
-@recipe_router.callback_query(F.data == "cooking_time")
-async def cooking_time(callback: types.CallbackQuery):
+@recipe_router.message(
+        StateFilter(None),
+        F.text == "Сгенерировать новый рецепт")
+async def number_of_recipes(message: types.Message, state: FSMContext):
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="1",
+        callback_data="cooking_time")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="2",
+        callback_data="cooking_time")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="3",
+        callback_data="cooking_time")
+    )
+    await message.answer(
+        "Выберите желаемое время, "
+        "котороев вы хотите потратить на приготовление",
+        reply_markup=builder.as_markup()
+    )
+    await state.set_state(RecipeGenerate.choosing_cooking_time)
+
+
+@recipe_router.callback_query(
+        RecipeGenerate.choosing_number_recipes,
+        F.data == "cooking_time")
+async def cooking_time(callback: types.CallbackQuery, state: FSMContext):
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text="5-20 минут",
@@ -25,10 +56,13 @@ async def cooking_time(callback: types.CallbackQuery):
         "котороев вы хотите потратить на приготовление",
         reply_markup=builder.as_markup()
     )
+    await state.set_state(RecipeGenerate.choosing_cooking_time)
 
 
-@recipe_router.callback_query(F.data == "type_of_cooking")
-async def type_of_cooking(callback: types.CallbackQuery):
+@recipe_router.callback_query(
+        RecipeGenerate.choosing_cooking_time,
+        F.data == "type_of_cooking")
+async def type_of_cooking(callback: types.CallbackQuery, state: FSMContext):
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text="Запечь в духовке",
@@ -46,10 +80,14 @@ async def type_of_cooking(callback: types.CallbackQuery):
         "И последнее, выберите желаемый тип приготовления",
         reply_markup=builder.as_markup()
     )
+    await state.set_state(RecipeGenerate.choosing_cooking_type)
 
 
 @recipe_router.callback_query(F.data == "generate_recipes")
-async def generate_recipes(callback: types.CallbackQuery, bot: Bot):
+async def generate_recipes(callback: types.CallbackQuery,
+                           bot: Bot,
+                           state: FSMContext):
     await bot.send_chat_action(callback.chat.id, types.ChatActions.TYPING)
     # TODO вызов FastAPI для геренации рецепта
     # и отпавка его (их) пользователю в разметке HTML
+    await state.clear()

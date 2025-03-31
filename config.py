@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     DB_NAME: str
 
     BOT_TOKEN: SecretStr
-    maintenance_mode: bool
+    maintenance_mode: bool = False
 
     @property
     def db_url(self) -> str:
