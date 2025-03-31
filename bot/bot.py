@@ -5,19 +5,19 @@ from aiogram.utils.callback_answer import CallbackAnswerMiddleware
 import asyncio
 
 from config import settings
-from bot.handlers import recipe_router, start_router
+from bot.handlers import maintenance_router, recipe_router, start_router
 
 
 bot = Bot(
     token=settings.BOT_TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML)
 )
-dp = Dispatcher()
+dp = Dispatcher(maintenance_mode=settings.maintenance_mode)
 dp.callback_query.middleware(CallbackAnswerMiddleware())
 
 
 async def main():
-    dp.include_router(recipe_router, start_router)
+    dp.include_router(maintenance_router, recipe_router, start_router)
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
