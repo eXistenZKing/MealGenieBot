@@ -4,7 +4,7 @@ from aiogram.enums import ParseMode
 from aiogram.utils.callback_answer import CallbackAnswerMiddleware
 import asyncio
 
-from config import settings
+from bot.config import settings
 from bot.handlers import maintenance_router, recipe_router, start_router
 
 
