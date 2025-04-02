@@ -5,7 +5,7 @@ from aiogram.utils.callback_answer import CallbackAnswerMiddleware
 import asyncio
 
 from bot.config import settings
-from bot.handlers import maintenance_router, recipe_router, start_router
+from bot.handlers import common_router, maintenance_router, recipe_router
 
 
 bot = Bot(
@@ -17,15 +17,9 @@ dp.callback_query.middleware(CallbackAnswerMiddleware())
 
 
 async def main():
-    dp.include_router(maintenance_router, recipe_router, start_router)
+    dp.include_router(maintenance_router, recipe_router, common_router)
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
-
-
-# async def set_webhook():
-#     await bot.set_webhook(
-#         url="http://backend:8000/webhook",
-#     )
 
 
 if __name__ == "__main__":
