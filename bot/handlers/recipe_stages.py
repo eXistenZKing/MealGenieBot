@@ -1,4 +1,4 @@
-from aiogram import Bot, F, Router, html, types
+from aiogram import Bot, F, Router, types
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
