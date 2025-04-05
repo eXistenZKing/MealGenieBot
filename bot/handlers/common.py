@@ -1,45 +1,66 @@
-from aiogram import F, Router, html
-from aiogram.filters import Command, CommandStart, StateFilter
+from aiogram import F, Router, html, types
+from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import default_state
-from aiogram import types
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from bot.fsm import RecipeGenerate
+from bot.keyboards import (
+    keyboard_for_old_user,
+    keyboard_for_new_user,
+    keyboard_for_menu
+)
+from bot.crud.users import create_new_user
 
 common_router = Router()
 
 
 @common_router.message(CommandStart())
-async def handler_start(message: types.Message):
-    # TODO запрос на добавление пользователя в БД
-    kb = [types.KeyboardButton(text="Сгенерировать новый рецепт"),]
-    keyboard = types.ReplyKeyboardMarkup(
-        keyboard=kb,
-        resize_keyboard=True,
+async def handler_start(
+    message: types.Message,
+    state: FSMContext,
+    session: AsyncSession
+):
+    is_new_user = await create_new_user(
+        session=session,
+        telegram_id=message.from_user.id
     )
+    user_name = html.bold(html.quote(message.from_user.first_name))
+    if is_new_user:
+        await message.answer(
+            f"Привет, {user_name}! "
+            "Я помогу придумать рецепт для твоего обеда, "
+            "ужина, перекуса и другого любого приёма еды! "
+            "Для старта нажмите на кнопку 'Сгенерировать новый рецепт'",
+            reply_markup=await keyboard_for_new_user()
+        )
+        await state.set_state(RecipeGenerate.choosing_number_recipes)
+    else:
+        user_name = html.bold(html.quote(message.from_user.first_name))
+        welcome_text = (
+            f"С возвращением, {user_name}! "
+            "Рад видеть вас снова! "
+            "Вы можете сгенерировать новый рецепт или "
+            "воспользоваться дополнительными функциями в меню."
+        )
+        await message.answer(
+            welcome_text,
+            reply_markup=await keyboard_for_old_user()
+        )
+
+
+@common_router.message(F.text == "Меню")
+async def show_menu(message: types.Message):
     await message.answer(
-        f"Привет, {html.bold(html.quote(message.from_user.first_name))}! "
-        "Я помогу придумать рецепт для твоего обеда, "
-        "ужина, перекуса и другого любого приёма еды! "
-        "Для старта нажмите на кнопку 'Сгенерировать новый рецепт'",
-        reply_markup=keyboard
-    )
-    # TODO если пользователь существует, приветствовать иначе
-
-
-@common_router.message(StateFilter(None), Command(commands=["cancel"]))
-@common_router.message(default_state, F.text.lower() == "отмена")
-async def cmd_cancel_no_state(message: types.Message, state: FSMContext):
-    await state.set_data({})
-    await message.answer(
-        text="Нечего отменять",
-        reply_markup=types.ReplyKeyboardRemove()
+        "Выберите действие:",
+        reply_markup=await keyboard_for_menu()
     )
 
 
-@common_router.message(Command(commands=["cancel"]))
-@common_router.message(F.text.lower() == "отмена")
-async def cmd_cancel(message: types.Message, state: FSMContext):
+@common_router.callback_query(F.data == "cancel")
+async def cmd_cancel(callback: types.CallbackQuery, state: FSMContext):
     await state.clear()
-    await message.answer(
-        text="Действие отменено",
-        reply_markup=types.ReplyKeyboardRemove()
+    await callback.answer()
+    await callback.message.answer(
+        text="Действие отменено. Выберите новое действие в меню: ",
+        reply_markup=await keyboard_for_menu()
     )

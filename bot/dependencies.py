@@ -1,9 +1,9 @@
 from fastapi import Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.database import database
-from app.crud import get_user
-from app.schemas import User
+from bot.core.database import database
+from bot.crud import get_user
+from bot.schemas import User
 
 
 async def get_current_user(

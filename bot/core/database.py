@@ -1,5 +1,3 @@
-from typing import AsyncGenerator
-
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -7,7 +5,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import DeclarativeBase
 
-from app.config import settings
+from bot.config import settings
 
 
 class Base(DeclarativeBase):
@@ -23,9 +21,9 @@ class DatabaseConnection:
             expire_on_commit=False
         )
 
-    async def async_session(self) -> AsyncGenerator[AsyncSession, None]:
-        async with self.session_factory() as session:
-            yield session
+    async def async_session(self) -> AsyncSession:
+        session = self.session_factory()
+        return session
 
 
 database = DatabaseConnection(url=settings.db_url)
